@@ -4,6 +4,9 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
+    "start": "ts-node src/tasks/registertask.ts",
+    "setup": "ts-node src/tasks/setup-automation.ts",
+    "manage": "ts-node src/tasks/manage-tasks.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

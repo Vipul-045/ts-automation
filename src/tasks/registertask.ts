@@ -11,27 +11,29 @@ async function main() {
    const automate = await AutomateSDK.create(config.chainId, signer);
 
    const contract = new ethers.Contract(
-    process.env.CONTRACT_ADDRESS!,
+    config.contract,
     escrowABI,
     signer
   );
 
-const { taskId } = await automate.createTask({
-  name: "Escrow Auto Payment",
-  execAddress: contract.address,
-  execSelector: contract.interface.getSighash("processSubscriptionPayment"),
+const gasEstimate = await (contract.estimateGas["checker"]as any)("0x23316A7AF939a09c0Ee9A57Dece71ba7f2A0F996");
+console.log("Gas estimate:", gasEstimate.toString());
 
-  // Resolver logic
-  resolverAddress: contract.address,
-  resolverData: contract.interface.encodeFunctionData("checker"),
+
+const { taskId } = await automate.createTask({
+  name: "Subscription Auto-Payment 1",
+  execAddress: contract.address,
+  execSelector: contract.interface.getSighash("checker"),
+  execData: contract.interface.encodeFunctionData("checker", ["0x23316A7AF939a09c0Ee9A57Dece71ba7f2A0F996"]), // Using subscription ID 1 as example
+
+  // Use time-based trigger instead of resolver
+  trigger: {
+    type: TriggerType.TIME,
+    interval: 20, // every 20 seconds
+  },
 
   // Required fields
-  dedicatedMsgSender: true,
-  trigger: {
-  type: TriggerType.TIME,
-  interval: 60, // every 60 seconds
-}
-
+  dedicatedMsgSender: true
 });
     console.log("Task created:", taskId);
 }
